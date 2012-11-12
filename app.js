@@ -10,9 +10,11 @@ app.configure(function () {
 
 app.get('/accounts', account.findAll);
 app.get('/accounts/:id', account.findById);
+app.get('/accounts/type/:type', account.findByType);
+
 app.post('/accounts', account.addWine);
 app.put('/accounts/location/:id', account.updateLocation);
-app.delete('/accountss/:id', account.deleteWine);
+app.delete('/accounts/:id', account.deleteWine);
 
 //app.listen(3001);
 app.listen(process.env.VCAP_APP_PORT || 3001);

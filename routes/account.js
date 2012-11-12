@@ -52,22 +52,32 @@ exports.findAll = function(req, res)
     });
 };
 
+exports.findById = function(req, res) {
+    var id = req.params.id;
+    console.log('Retrieving account: ' + id);
+    db.collection('accounts', function(err, collection) {
+        collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
+            res.send(item);
+        });
+    });
+};
+
+exports.findByType = function(req, res) {
+    var id = req.params.type;
+    console.log('Retrieving account: ' + id);
+    db.collection('accounts', function(err, collection) {
+        collection.find({'usertype':id}).toArray(function(err, items) {
+            res.send(items);
+        });
+    });
+}
+
 exports.updateLocation = function(req, res) {
     var id = req.params.id;
     var Location = req.body;
-    console.log('Updating Location: ' + id);
-    //collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) 
+    console.log('Updating Location: ' + id); 
     console.log(JSON.stringify(Location));
     db.collection('accounts', function(err, collection) {
-    	/*
-    	collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-    		if (item.latitude && item.longitude) {
-    			item.latitude = Location.latitude;
-    			item.longitude = Location.longtitude;
-    		} else {
-    		}
-    	}
-    	*/
         collection.update({'_id':new BSON.ObjectID(id)}, {$set: Location}, {safe:true}, function(err, result) {
             if (err) {
                 console.log('Error updating Location: ' + err);
@@ -79,3 +89,4 @@ exports.updateLocation = function(req, res) {
         });
     });
 }
+
