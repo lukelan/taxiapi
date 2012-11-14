@@ -8,13 +8,15 @@ app.configure(function () {
     app.use(express.bodyParser());
 });
 
+// USER
 app.get('/accounts', account.findAll);
 app.get('/accounts/:id', account.findById);
 app.get('/accounts/type/:type', account.findByType);
-
-app.post('/accounts', account.addWine);
 app.put('/accounts/location/:id', account.updateLocation);
-app.delete('/accounts/:id', account.deleteWine);
+
+//LOCATION
+app.get('/locations/distance', account.findByDistance2);
+app.get('/locations/distance/:id', account.findByDistanceWithAccountID);
 
 //app.listen(3001);
 app.listen(process.env.VCAP_APP_PORT || 3001);

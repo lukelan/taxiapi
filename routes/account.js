@@ -1,7 +1,6 @@
 var mongo = require('mongodb');
 
 var Server = mongo.Server,
-    Db = mongo.Db,
     BSON = mongo.BSONPure;
 
 //var server = new Server('localhost', 27017, {auto_reconnect: true});
@@ -73,11 +72,14 @@ require('mongodb').connect(mongourl, function(err, conn){
 
 exports.findAll = function(req, res)
 {
+	
+	
 	db.collection('accounts', function(err, collection) {
         collection.find().toArray(function(err, items) {
             res.send(items);
         });	
     });
+    
 };
 
 exports.findById = function(req, res) {
@@ -118,3 +120,61 @@ exports.updateLocation = function(req, res) {
     });
 }
 
+exports.findByDistance = function(req, res) {
+    var Location = req.body;
+    //var obj = JSON.parse(Location);
+    console.log('Retrieving accounts by distance: ' + req.body);
+    var point = [];
+    point = req.body.loc
+    console.log('Retrieving accounts by distance: ' + req.body.loc);
+    db.collection('accounts', function(err, collection) {
+        collection.find({'loc': {$near: point}}).toArray(function(err, items) {
+            res.send(items);
+        });
+    });
+}
+
+exports.findByDistance2 = function(req, res) {
+    var Location = req.body;
+    //var obj = JSON.parse(Location);
+    console.log('Retrieving accounts by distance: ' + req.body);
+    var point = [];
+    point = req.body.loc
+    console.log('Retrieving accounts by distance: ' + req.body.loc);
+    //collection.geoNear(50, 50, {uniqueDocs:true}, function(err, docs) {
+    //db.collection('accounts', function(err, collection) {
+    	//db.executeDbCommand({ geoNear : "CollectionName", near : [lat,lng], maxDistance : 10 }
+    	db.command({geoNear: 'accounts', near: [50,50], distanceMultiplier: 3963, spherical: true, num: 10}, function(e, reply) {
+    	//db.executeDbCommand({'geoNear': 'accounts', 'near': ['50','50'], 'maxDistance' : '10'}, function(e, reply) {	
+    		if (e) { 
+    			res.send(""); 
+    		}
+    		else {
+    		 	//var places = reply.results.map(function(doc) {
+    		 		console.log('Retrieving accounts by distance: ' + reply);
+    		 		res.send(reply);
+    				//reply.toArray(function(err, items) {
+            		//res.send(items);
+        		//});
+        	}
+    	});
+        //collection.geoNear(50, 50, {uniqueDocs:true}).toArray(function(err, items) {
+        //    res.send(items);
+        //});
+    //});
+}
+
+
+exports.findByDistanceWithAccountID = function(req, res) {
+    var id = req.params.id;
+    console.log('Retrieving accounts by distance: ' + id);
+    db.collection('accounts', function(err, collection) {
+    	collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, user) {
+    		var point = user.loc;
+    		console.log('Retrieving accounts by distance: ' + point);
+            collection.find({'loc': {$near: point}}).toArray(function(err, items) {
+            	res.send(items);
+        	});
+        });
+    });
+}
