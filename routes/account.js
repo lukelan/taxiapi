@@ -141,27 +141,16 @@ exports.findByDistance2 = function(req, res) {
     var point = [];
     point = req.body.loc
     console.log('Retrieving accounts by distance: ' + req.body.loc);
-    //collection.geoNear(50, 50, {uniqueDocs:true}, function(err, docs) {
-    //db.collection('accounts', function(err, collection) {
-    	//db.executeDbCommand({ geoNear : "CollectionName", near : [lat,lng], maxDistance : 10 }
-    	db.command({geoNear: 'accounts', near: [50,50], distanceMultiplier: 3963, spherical: true, num: 10}, function(e, reply) {
-    	//db.executeDbCommand({'geoNear': 'accounts', 'near': ['50','50'], 'maxDistance' : '10'}, function(e, reply) {	
-    		if (e) { 
-    			res.send(""); 
-    		}
-    		else {
-    		 	//var places = reply.results.map(function(doc) {
-    		 		console.log('Retrieving accounts by distance: ' + reply);
-    		 		res.send(reply);
-    				//reply.toArray(function(err, items) {
-            		//res.send(items);
-        		//});
-        	}
-    	});
-        //collection.geoNear(50, 50, {uniqueDocs:true}).toArray(function(err, items) {
-        //    res.send(items);
-        //});
-    //});
+
+    db.command({geoNear: 'accounts', near: req.body.loc, distanceMultiplier: 3963, spherical: true, num: 10}, function(e, reply) {
+		if (e) { 
+			res.send("" + e); 
+		}
+		else {
+			//console.log('Retrieving accounts by distance: ' + reply);
+			res.send(reply);
+		}
+    });
 }
 
 
@@ -172,9 +161,18 @@ exports.findByDistanceWithAccountID = function(req, res) {
     	collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, user) {
     		var point = user.loc;
     		console.log('Retrieving accounts by distance: ' + point);
-            collection.find({'loc': {$near: point}}).toArray(function(err, items) {
-            	res.send(items);
-        	});
+    		db.command({geoNear: 'accounts', near: user.loc, distanceMultiplier: 3963, spherical: true, num: 10}, function(e, reply) {
+				if (e) { 
+					res.send("" + e); 
+				}
+				else {
+					//console.log('Retrieving accounts by distance: ' + reply);
+					res.send(reply);
+				}
+			});
+            // collection.find({'loc': {$near: point}}).toArray(function(err, items) {
+//             	res.send(items);
+//         	});
         });
     });
 }
